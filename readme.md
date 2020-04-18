@@ -1,4 +1,4 @@
-# ![aetherline](etc/logo.svg)
+<h1><img alt="aetherline" src="etc/logo.svg" width="400"></h1>
 
 rethinking the vim statusline. lightweight, unobtrusive & lovely.
 
