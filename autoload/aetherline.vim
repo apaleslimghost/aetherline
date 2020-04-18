@@ -1,11 +1,21 @@
 
 let s:aetherline = get(g:, 'aetherline', {})
-let s:ends = get(s:aetherline, 'ends', {'start': "\ue0b2", 'end': "\ue0b0"})
+let s:ends = get(s:aetherline, 'ends', {'start': "▐", 'end': "▌"})
 let s:sep = get(s:aetherline, 'separator', '│')
 let s:padding = get(s:aetherline, 'padding', 1)
-let s:sections = get(s:aetherline, 'sections', [['%f', '%m']])
+let s:sections = get(s:aetherline, 'sections', [[function('aetherline#mode')], ['%f', '%m']])
+let s:modes = get(s:aetherline, 'modes', {
+			\ 'n': '⌘',
+			\ 'i': '✎',
+			\ 'v': '⌶',
+			\})
 
 let s:highlight_stack = []
+:
+function! aetherline#mode()
+	let l:mode = mode()
+	return get(s:modes, l:mode[0], l:mode) . ' '
+endfunction
 
 function! aetherline#map(list, func)
 	let copy = deepcopy(a:list)
@@ -22,7 +32,11 @@ function! aetherline#separator()
 endfunction
 
 function! aetherline#subsection(_, item)
-	return a:item
+	if type(a:item) == v:t_string
+		return a:item
+	elseif type(a:item) == v:t_func
+		return '%{' . string(a:item) . '()}' " lmao
+	end
 endfunction
 
 function! aetherline#end(which)
@@ -30,8 +44,7 @@ function! aetherline#end(which)
 endfunction
 
 function! aetherline#section(_, subsections)
-	return aetherline#pad(
-				\ aetherline#end('start') .
+	return aetherline#end('start') .
 				\ aetherline#highlight('AetherlineSection') .
 				\ join(
 				\   aetherline#map(a:subsections, function('aetherline#subsection')),
@@ -39,7 +52,6 @@ function! aetherline#section(_, subsections)
 				\ ) .
 				\ aetherline#end('end') .
 				\ aetherline#highlight('AetherlineBackground')
-				\ )
 endfunction
 
 function! aetherline#highlight(group)
